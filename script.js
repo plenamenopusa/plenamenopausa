@@ -1,6 +1,5 @@
-// Configuração da API do Cloudflare
-const CLOUDFLARE_API_URL = 'https://api.cloudflare.com/client/v4/accounts/5fa7c94d49ebd9c8a50a5e0ea2b8a947/d1/database/ff822ed5-6285-426c-9aca-7c36e325bc47/execute';
-const CLOUDFLARE_API_TOKEN = '6u2g0JhpABfyB-B05kFaQN_PyGZ2QbaGkb04IWkE';
+// Configuração do Cloudflare Worker (proxy para D1)
+const WORKER_URL = 'https://floral-lab-d13eplena-menopausa-api.plenamenopusa.workers.dev';
 
 // Validação e formatação de WhatsApp
 function formatWhatsApp(input) {
@@ -71,25 +70,20 @@ function validateForm(formData) {
     return errors;
 }
 
-// Envio dos dados para Cloudflare D1
-async function sendToCloudflare(formData) {
+// Envio dos dados para Cloudflare Worker
+async function sendToWorker(formData) {
     try {
-        const response = await fetch(CLOUDFLARE_API_URL, {
+        const response = await fetch(WORKER_URL, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                sql: `INSERT INTO leads (nome, data_nascimento, email, whatsapp, data_cadastro) 
-                      VALUES (?, ?, ?, ?, ?)`,
-                params: [
-                    formData.nome,
-                    formData.dataNascimento,
-                    formData.email,
-                    formData.whatsapp.replace(/\D/g, ''),
-                    new Date().toISOString()
-                ]
+                nome: formData.nome,
+                data_nascimento: formData.dataNascimento,
+                email: formData.email,
+                whatsapp: formData.whatsapp.replace(/\D/g, ''),
+                data_cadastro: new Date().toISOString()
             })
         });
         
@@ -188,9 +182,9 @@ document.addEventListener('DOMContentLoaded', function() {
         btnLoading.style.display = 'inline';
         
         try {
-            // Enviar para Cloudflare D1
-            await sendToCloudflare(formData);
-            console.log('Dados enviados para Cloudflare D1 com sucesso');
+            // Enviar para Cloudflare Worker
+            await sendToWorker(formData);
+            console.log('Dados enviados para Cloudflare Worker com sucesso');
             
             // Mostrar mensagem de sucesso
             form.style.display = 'none';
