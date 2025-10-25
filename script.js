@@ -1,6 +1,6 @@
 // Configuração da API do Cloudflare
-const CLOUDFLARE_API_URL = 'https://api.cloudflare.com/client/v4/accounts/YOUR_ACCOUNT_ID/d1/database/YOUR_DATABASE_ID/execute';
-const CLOUDFLARE_API_TOKEN = 'YOUR_API_TOKEN';
+const CLOUDFLARE_API_URL = 'https://api.cloudflare.com/client/v4/accounts/5fa7c94d49ebd9c8a50a5e0ea2b8a947/d1/database/ff822ed5-6285-426c-9aca-7c36e325bc47/execute';
+const CLOUDFLARE_API_TOKEN = '6u2g0JhpABfyB-B05kFaQN_PyGZ2QbaGkb04IWkE';
 
 // Validação e formatação de WhatsApp
 function formatWhatsApp(input) {
@@ -71,7 +71,7 @@ function validateForm(formData) {
     return errors;
 }
 
-// Envio dos dados para Cloudflare
+// Envio dos dados para Cloudflare D1
 async function sendToCloudflare(formData) {
     try {
         const response = await fetch(CLOUDFLARE_API_URL, {
@@ -188,14 +188,9 @@ document.addEventListener('DOMContentLoaded', function() {
         btnLoading.style.display = 'inline';
         
         try {
-            // Tentar enviar para Cloudflare primeiro
-            try {
-                await sendToCloudflare(formData);
-                console.log('Dados enviados para Cloudflare com sucesso');
-            } catch (cloudflareError) {
-                console.warn('Erro ao enviar para Cloudflare, usando fallback:', cloudflareError);
-                await sendEmailFallback(formData);
-            }
+            // Enviar para Cloudflare D1
+            await sendToCloudflare(formData);
+            console.log('Dados enviados para Cloudflare D1 com sucesso');
             
             // Mostrar mensagem de sucesso
             form.style.display = 'none';
